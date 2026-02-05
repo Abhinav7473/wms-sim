@@ -1,6 +1,7 @@
-# WMS Simulation: Visibility, Coordination, and Failure in Warehouse Systems
+# Warehouse Management System Simulator
+## Studying Operator Visibility, Spatial Understanding, and Breakdown
 
-This project explores how **Warehouse Management Systems (WMS)** expose—or obscure—critical system state to human operators.
+This project is a **research-oriented simulation** focused on how human operators perceive, interpret, and act on warehouse system state under density, automation, and failure.
 
 Rather than optimizing throughput or accuracy alone, the simulator is designed to study:
 - how information *shows through* automation,
