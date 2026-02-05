@@ -1,0 +1,10 @@
+{
+  "name": "Main Warehouse",
+  "dimensions": {
+    "width": 50,
+    "length": 50,
+    "height": 10
+  },
+  "zones": ["receiving", "storage", "picking", "shipping"],
+  "racks": []
+}
