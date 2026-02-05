@@ -25,4 +25,12 @@ Thumbs.db
 # Database
 *.db
 *.sqlite
-EOF
+
+# 3D Models (large binary files)
+public/models/
+*.gltf
+*.glb
+*.fbx
+*.obj
+*.blend
+*.blend1
