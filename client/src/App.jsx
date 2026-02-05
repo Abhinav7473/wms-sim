@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Grid, PerspectiveCamera } from '@react-three/drei'
 import axios from 'axios'
 import './App.css'
 import * as THREE from 'three'
+import { OrbitControls, Grid, PerspectiveCamera, Text } from '@react-three/drei'
+import { useFrame } from '@react-three/fiber'
+import { useRef } from 'react'
 
 function Robot({ position, status, id }) {
+  const meshRef = useRef()
+  
   const color = {
     idle: '#00ff00',
     moving: '#ffaa00',
@@ -13,10 +18,22 @@ function Robot({ position, status, id }) {
     error: '#ff0000'
   }[status] || '#ffffff'
 
+  // Animate moving robots
+  useFrame((state) => {
+    if (status === 'moving' && meshRef.current) {
+      // Gentle bobbing animation
+      meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 2) * 0.1
+    }
+  })
+
   return (
-    <mesh position={position}>
-      <boxGeometry args={[0.5, 0.5, 0.5]} />
-      <meshStandardMaterial color={color} />
+    <mesh ref={meshRef} position={position}>
+      <boxGeometry args={[0.8, 0.8, 0.8]} />
+      <meshStandardMaterial 
+        color={color}
+        emissive={color}
+        emissiveIntensity={0.3}
+      />
     </mesh>
   )
 }
@@ -36,7 +53,7 @@ function WarehouseFloor() {
 function Scene({ robots }) {
   return (
     <>
-      <PerspectiveCamera makeDefault position={[20, 20, 20]} fov={50} />
+      <PerspectiveCamera makeDefault position={[25, 25, 25]} fov={60} />
       <OrbitControls 
         enableDamping 
         dampingFactor={0.05}
@@ -207,59 +224,57 @@ function WarehouseStructure() {
         position={[-15, 0, 0]} 
         size={[10, 20]} 
         color="#ff4444" 
-        label="Receiving"
       />
+      <ZoneLabel position={[-15, 0.1, 0]} text="RECEIVING" color="#ff6666" />
       
       {/* Storage Zone (Blue) - Center with racks */}
       <ZoneMarker 
         position={[0, 0, 0]} 
         size={[20, 30]} 
         color="#4444ff" 
-        label="Storage"
       />
+      <ZoneLabel position={[0, 0.1, -12]} text="STORAGE" color="#6666ff" />
       
-      {/* Storage Racks - Grid pattern */}
-      {/* Row 1 */}
-      <StorageRack position={[-5, 1.5, -8]} size={[3, 3, 0.5]} />
-      <StorageRack position={[0, 1.5, -8]} size={[3, 3, 0.5]} />
-      <StorageRack position={[5, 1.5, -8]} size={[3, 3, 0.5]} />
+      {/* Storage Racks - Reorganized for better navigation */}
+      {/* Left column */}
+      <StorageRack position={[-7, 1.5, -10]} size={[3, 3, 0.5]} />
+      <StorageRack position={[-7, 1.5, -5]} size={[3, 3, 0.5]} />
+      <StorageRack position={[-7, 1.5, 0]} size={[3, 3, 0.5]} />
+      <StorageRack position={[-7, 1.5, 5]} size={[3, 3, 0.5]} />
       
-      {/* Row 2 */}
-      <StorageRack position={[-5, 1.5, -4]} size={[3, 3, 0.5]} />
-      <StorageRack position={[0, 1.5, -4]} size={[3, 3, 0.5]} />
-      <StorageRack position={[5, 1.5, -4]} size={[3, 3, 0.5]} />
+      {/* Center column */}
+      <StorageRack position={[0, 1.5, -10]} size={[3, 3, 0.5]} />
+      <StorageRack position={[0, 1.5, -5]} size={[3, 3, 0.5]} />
+      <StorageRack position={[0, 1.5, 5]} size={[3, 3, 0.5]} />
+      <StorageRack position={[0, 1.5, 10]} size={[3, 3, 0.5]} />
       
-      {/* Row 3 */}
-      <StorageRack position={[-5, 1.5, 0]} size={[3, 3, 0.5]} />
-      <StorageRack position={[0, 1.5, 0]} size={[3, 3, 0.5]} />
-      <StorageRack position={[5, 1.5, 0]} size={[3, 3, 0.5]} />
-      
-      {/* Row 4 */}
-      <StorageRack position={[-5, 1.5, 4]} size={[3, 3, 0.5]} />
-      <StorageRack position={[0, 1.5, 4]} size={[3, 3, 0.5]} />
-      <StorageRack position={[5, 1.5, 4]} size={[3, 3, 0.5]} />
+      {/* Right column */}
+      <StorageRack position={[7, 1.5, -10]} size={[3, 3, 0.5]} />
+      <StorageRack position={[7, 1.5, -5]} size={[3, 3, 0.5]} />
+      <StorageRack position={[7, 1.5, 0]} size={[3, 3, 0.5]} />
+      <StorageRack position={[7, 1.5, 5]} size={[3, 3, 0.5]} />
       
       {/* Picking Zone (Green) - Right side */}
       <ZoneMarker 
         position={[15, 0, 5]} 
         size={[10, 15]} 
         color="#44ff44" 
-        label="Picking"
       />
+      <ZoneLabel position={[15, 0.1, 5]} text="PICKING" color="#66ff66" />
       
       {/* Shipping Zone (Yellow) - Bottom right */}
       <ZoneMarker 
         position={[15, 0, -10]} 
         size={[10, 10]} 
         color="#ffaa00" 
-        label="Shipping"
       />
+      <ZoneLabel position={[15, 0.1, -10]} text="SHIPPING" color="#ffcc44" />
       
       {/* Warehouse walls */}
-      <WallBoundary position={[0, 1.5, -15]} size={[50, 3, 0.2]} />
-      <WallBoundary position={[0, 1.5, 15]} size={[50, 3, 0.2]} />
-      <WallBoundary position={[-25, 1.5, 0]} size={[0.2, 3, 30]} />
-      <WallBoundary position={[25, 1.5, 0]} size={[0.2, 3, 30]} />
+      <WallBoundary position={[0, 1.5, -17]} size={[50, 3, 0.2]} />
+      <WallBoundary position={[0, 1.5, 17]} size={[50, 3, 0.2]} />
+      <WallBoundary position={[-25, 1.5, 0]} size={[0.2, 3, 34]} />
+      <WallBoundary position={[25, 1.5, 0]} size={[0.2, 3, 34]} />
     </group>
   )
 }
@@ -276,6 +291,23 @@ function WallBoundary({ position, size }) {
         wireframe={false}
       />
     </mesh>
+  )
+}
+
+// 3D Text label for zones
+function ZoneLabel({ position, text, color }) {
+  return (
+    <Text
+      position={position}
+      fontSize={1.5}
+      color={color}
+      anchorX="center"
+      anchorY="middle"
+      outlineWidth={0.1}
+      outlineColor="#000000"
+    >
+      {text}
+    </Text>
   )
 }
 
