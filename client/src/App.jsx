@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Grid, PerspectiveCamera } from '@react-three/drei'
 import axios from 'axios'
 import './App.css'
+import * as THREE from 'three'
 
 function Robot({ position, status, id }) {
   const color = {
@@ -35,18 +36,21 @@ function WarehouseFloor() {
 function Scene({ robots }) {
   return (
     <>
-      <PerspectiveCamera makeDefault position={[15, 15, 15]} fov={50} />
+      <PerspectiveCamera makeDefault position={[20, 20, 20]} fov={50} />
       <OrbitControls 
         enableDamping 
         dampingFactor={0.05}
         minDistance={5}
-        maxDistance={50}
+        maxDistance={80}
+        maxPolarAngle={Math.PI / 2.2}  // Prevent going below floor
       />
       
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[20, 20, 10]} intensity={1} castShadow />
+      <directionalLight position={[-20, 10, -10]} intensity={0.3} />
       
       <WarehouseFloor />
+      <WarehouseStructure />
       
       {robots.map(robot => (
         <Robot 
@@ -145,6 +149,133 @@ function App() {
         <RobotPanel robots={robots} />
       </div>
     </div>
+  )
+}
+
+// Warehouse rack/shelf component
+function StorageRack({ position, size = [2, 3, 0.3] }) {
+  return (
+    <mesh position={position}>
+      <boxGeometry args={size} />
+      <meshStandardMaterial color="#2a2a3e" />
+      {/* Rack shelves */}
+      <mesh position={[0, -1, 0]}>
+        <boxGeometry args={[size[0], 0.1, size[2]]} />
+        <meshStandardMaterial color="#3a3a4e" />
+      </mesh>
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[size[0], 0.1, size[2]]} />
+        <meshStandardMaterial color="#3a3a4e" />
+      </mesh>
+      <mesh position={[0, 1, 0]}>
+        <boxGeometry args={[size[0], 0.1, size[2]]} />
+        <meshStandardMaterial color="#3a3a4e" />
+      </mesh>
+    </mesh>
+  )
+}
+
+// Zone marker (colored floor area)
+function ZoneMarker({ position, size, color, label }) {
+  return (
+    <group position={position}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
+        <planeGeometry args={size} />
+        <meshStandardMaterial 
+          color={color} 
+          transparent 
+          opacity={0.2}
+          emissive={color}
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+      {/* Zone border */}
+      <lineSegments>
+        <edgesGeometry attach="geometry" args={[new THREE.PlaneGeometry(...size)]} />
+        <lineBasicMaterial attach="material" color={color} />
+      </lineSegments>
+    </group>
+  )
+}
+
+// Complete warehouse layout
+function WarehouseStructure() {
+  return (
+    <group>
+      {/* Receiving Zone (Red) - Left side */}
+      <ZoneMarker 
+        position={[-15, 0, 0]} 
+        size={[10, 20]} 
+        color="#ff4444" 
+        label="Receiving"
+      />
+      
+      {/* Storage Zone (Blue) - Center with racks */}
+      <ZoneMarker 
+        position={[0, 0, 0]} 
+        size={[20, 30]} 
+        color="#4444ff" 
+        label="Storage"
+      />
+      
+      {/* Storage Racks - Grid pattern */}
+      {/* Row 1 */}
+      <StorageRack position={[-5, 1.5, -8]} size={[3, 3, 0.5]} />
+      <StorageRack position={[0, 1.5, -8]} size={[3, 3, 0.5]} />
+      <StorageRack position={[5, 1.5, -8]} size={[3, 3, 0.5]} />
+      
+      {/* Row 2 */}
+      <StorageRack position={[-5, 1.5, -4]} size={[3, 3, 0.5]} />
+      <StorageRack position={[0, 1.5, -4]} size={[3, 3, 0.5]} />
+      <StorageRack position={[5, 1.5, -4]} size={[3, 3, 0.5]} />
+      
+      {/* Row 3 */}
+      <StorageRack position={[-5, 1.5, 0]} size={[3, 3, 0.5]} />
+      <StorageRack position={[0, 1.5, 0]} size={[3, 3, 0.5]} />
+      <StorageRack position={[5, 1.5, 0]} size={[3, 3, 0.5]} />
+      
+      {/* Row 4 */}
+      <StorageRack position={[-5, 1.5, 4]} size={[3, 3, 0.5]} />
+      <StorageRack position={[0, 1.5, 4]} size={[3, 3, 0.5]} />
+      <StorageRack position={[5, 1.5, 4]} size={[3, 3, 0.5]} />
+      
+      {/* Picking Zone (Green) - Right side */}
+      <ZoneMarker 
+        position={[15, 0, 5]} 
+        size={[10, 15]} 
+        color="#44ff44" 
+        label="Picking"
+      />
+      
+      {/* Shipping Zone (Yellow) - Bottom right */}
+      <ZoneMarker 
+        position={[15, 0, -10]} 
+        size={[10, 10]} 
+        color="#ffaa00" 
+        label="Shipping"
+      />
+      
+      {/* Warehouse walls */}
+      <WallBoundary position={[0, 1.5, -15]} size={[50, 3, 0.2]} />
+      <WallBoundary position={[0, 1.5, 15]} size={[50, 3, 0.2]} />
+      <WallBoundary position={[-25, 1.5, 0]} size={[0.2, 3, 30]} />
+      <WallBoundary position={[25, 1.5, 0]} size={[0.2, 3, 30]} />
+    </group>
+  )
+}
+
+// Wall component
+function WallBoundary({ position, size }) {
+  return (
+    <mesh position={position}>
+      <boxGeometry args={size} />
+      <meshStandardMaterial 
+        color="#1a1a2e" 
+        transparent 
+        opacity={0.4}
+        wireframe={false}
+      />
+    </mesh>
   )
 }
 
