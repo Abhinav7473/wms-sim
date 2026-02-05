@@ -3,8 +3,8 @@ import ZoneMarker from './ZoneMarker'
 import ZoneLabel from './ZoneLabel'
 import WallBoundary from './WallBoundary'
 import ArUcoMarker from './ArUcoMarker'
-import CargoBox from './CargoBox'
-import DeliveryTruck from './DeliveryTruck'
+import TruckModel from './models/TruckModel'
+import BoxModel from './models/BoxModel'
 
 export default function WarehouseStructure() {
   // ArUco marker positions (one per storage location)
@@ -38,41 +38,49 @@ export default function WarehouseStructure() {
       <ZoneMarker position={[15, 0, -10]} size={[10, 10]} color="#ffaa00" />
       <ZoneLabel position={[15, 0.1, -10]} text="SHIPPING" color="#ffcc44" />
       
-      {/* Storage Racks */}
-      <StorageRack position={[-7, 1.5, -10]} />
-      <StorageRack position={[-7, 1.5, -5]} />
-      <StorageRack position={[-7, 1.5, 0]} />
-      <StorageRack position={[-7, 1.5, 5]} />
+      {/* Storage Racks - adjusted Y to sit on ground */}
+      <StorageRack position={[-7, 0, -10]} />
+      <StorageRack position={[-7, 0, -5]} />
+      <StorageRack position={[-7, 0, 0]} />
+      <StorageRack position={[-7, 0, 5]} />
       
-      <StorageRack position={[0, 1.5, -10]} />
-      <StorageRack position={[0, 1.5, -5]} />
-      <StorageRack position={[0, 1.5, 5]} />
-      <StorageRack position={[0, 1.5, 10]} />
+      <StorageRack position={[0, 0, -10]} />
+      <StorageRack position={[0, 0, -5]} />
+      <StorageRack position={[0, 0, 5]} />
+      <StorageRack position={[0, 0, 10]} />
       
-      <StorageRack position={[7, 1.5, -10]} />
-      <StorageRack position={[7, 1.5, -5]} />
-      <StorageRack position={[7, 1.5, 0]} />
-      <StorageRack position={[7, 1.5, 5]} />
+      <StorageRack position={[7, 0, -10]} />
+      <StorageRack position={[7, 0, -5]} />
+      <StorageRack position={[7, 0, 0]} />
+      <StorageRack position={[7, 0, 5]} />
       
       {/* ArUco Markers on floor */}
       {arUcoPositions.map(marker => (
         <ArUcoMarker key={marker.id} position={marker.pos} id={marker.id} />
       ))}
 
-      {/* Receiving zone cargo (different sizes) */}
-      <CargoBox position={[-18, 0.3, 2]} size={[0.6, 0.6, 0.6]} color="#a0522d" />
-      <CargoBox position={[-16, 0.4, 3]} size={[0.8, 0.8, 0.5]} color="#8b6914" />
-      <CargoBox position={[-17, 0.35, -2]} size={[0.7, 0.7, 0.7]} color="#9a7b4f" />
-      <CargoBox position={[-15, 0.25, 0]} size={[0.5, 0.5, 0.5]} color="#a0522d" />
+      {/* Receiving zone cargo - using BoxModel */}
+      <BoxModel position={[-18, 0.3, 2]} scale={0.015} />
+      <BoxModel position={[-16, 0.4, 3]} scale={0.018} />
+      <BoxModel position={[-17, 0.35, -2]} scale={0.016} />
+      <BoxModel position={[-15, 0.25, 0]} scale={0.012} />
 
-      {/* Picking zone cargo (smaller items) */}
-      <CargoBox position={[13, 0.2, 6]} size={[0.4, 0.4, 0.4]} color="#cd853f" />
-      <CargoBox position={[14, 0.25, 8]} size={[0.5, 0.5, 0.3]} color="#daa520" />
-      <CargoBox position={[16, 0.2, 7]} size={[0.4, 0.4, 0.4]} color="#b8860b" />
+      {/* Picking zone cargo - smaller boxes */}
+      <BoxModel position={[13, 0.2, 6]} scale={0.01} />
+      <BoxModel position={[14, 0.25, 8]} scale={0.012} />
+      <BoxModel position={[16, 0.2, 7]} scale={0.01} />
       
-      {/* Delivery Truck in Shipping zone */}
-      <DeliveryTruck position={[17, 0, -8]} />
-      <DeliveryTruck position={[17, 0, -13]} />
+      {/* Delivery Trucks in Shipping zone - MUCH BIGGER */}
+      <TruckModel 
+        position={[20, 0, -8]} 
+        rotation={[0, Math.PI / 2, 0]} 
+        scale={0.5}  // 8x bigger!
+      />
+      <TruckModel 
+        position={[20, 0, -13]} 
+        rotation={[0, Math.PI / 2, 0]} 
+        scale={0.5}  // 8x bigger!
+      />
 
       {/* Walls */}
       <WallBoundary position={[0, 1.5, -17]} size={[50, 3, 0.2]} />

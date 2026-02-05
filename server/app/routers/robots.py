@@ -68,14 +68,23 @@ def simulate_robot_movement():
     
     for robot in robots:
         if robot["status"] == "moving":
-            # Gradually move toward storage center (0, 0, 0)
-            robot["position"][0] += random.uniform(-0.5, 0.5)
-            robot["position"][2] += random.uniform(-0.5, 0.5)
+            # Get target position (you need to define this based on task)
+            # For now, just move gradually toward (0, 0, 0)
+            target_x = 0
+            target_z = 0
             
-            # Random chance to complete task
-            if random.random() < 0.1:
+            # Calculate direction
+            dx = target_x - robot["position"][0]
+            dz = target_z - robot["position"][2]
+            
+            # Normalize and move
+            distance = (dx**2 + dz**2)**0.5
+            if distance > 0.5:
+                robot["position"][0] += (dx / distance) * 0.5
+                robot["position"][2] += (dz / distance) * 0.5
+            else:
                 robot["status"] = "picking"
-                robot["position"] = [0, 0, 0]  # Arrived at storage
+                robot["position"] = [target_x, 0, target_z]
     
     save_robots(robots)
     return {"status": "updated", "robots": robots}

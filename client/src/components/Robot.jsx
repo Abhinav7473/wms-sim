@@ -1,12 +1,10 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Text } from '@react-three/drei'
-import * as THREE from 'three'
+import ForkliftModel from './models/ForkliftModel'
 
-export default function Robot({ position, status, id, current_task }) {
-  const meshRef = useRef()
+export default function Robot({ position, status, id }) {
   const groupRef = useRef()
-  const [isMoving, setIsMoving] = useState(false)
   
   const color = {
     idle: '#00ff00',
@@ -16,32 +14,35 @@ export default function Robot({ position, status, id, current_task }) {
   }[status] || '#ffffff'
 
   useFrame((state) => {
-    if (meshRef.current) {
-      if (status === 'moving') {
-        // Bounce animation
-        meshRef.current.position.y = 0.4 + Math.sin(state.clock.elapsedTime * 5) * 0.12
-      } else {
-        meshRef.current.position.y = 0.4
-      }
+    if (groupRef.current && status === 'moving') {
+      groupRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 5) * 0.08
+    } else if (groupRef.current) {
+      groupRef.current.position.y = position[1]
     }
   })
 
   return (
     <group ref={groupRef} position={position}>
-      <mesh ref={meshRef}>
-        <boxGeometry args={[0.7, 0.7, 0.7]} />
+      {/* Use actual forklift model */}
+      <ForkliftModel 
+        position={[0, 0, 0]} 
+        rotation={[0, Math.PI / 2, 0]} 
+        scale={0.5}
+      />
+      
+      {/* Status light above */}
+      <mesh position={[0, 2, 0]}>
+        <sphereGeometry args={[0.15]} />
         <meshStandardMaterial 
           color={color}
           emissive={color}
-          emissiveIntensity={0.7}
-          metalness={0.5}
-          roughness={0.3}
+          emissiveIntensity={2}
         />
       </mesh>
       
       <Text
-        position={[0, 1.3, 0]}
-        fontSize={0.28}
+        position={[0, 2.5, 0]}
+        fontSize={0.3}
         color="#ffffff"
         anchorX="center"
         anchorY="middle"
