@@ -3,6 +3,8 @@ from typing import List
 from app.models.robot import Robot, RobotStatus, TaskAssignment
 import json
 from pathlib import Path
+import random
+import time
 
 router = APIRouter()
 
@@ -58,3 +60,22 @@ def update_robot_position(robot_id: str, position: List[float]):
     robot["position"] = position
     save_robots(robots)
     return {"status": "updated", "robot_id": robot_id, "position": position}
+
+@router.get("/simulate-movement")
+def simulate_robot_movement():
+    """Simulate robots moving between zones"""
+    robots = load_robots()
+    
+    for robot in robots:
+        if robot["status"] == "moving":
+            # Gradually move toward storage center (0, 0, 0)
+            robot["position"][0] += random.uniform(-0.5, 0.5)
+            robot["position"][2] += random.uniform(-0.5, 0.5)
+            
+            # Random chance to complete task
+            if random.random() < 0.1:
+                robot["status"] = "picking"
+                robot["position"] = [0, 0, 0]  # Arrived at storage
+    
+    save_robots(robots)
+    return {"status": "updated", "robots": robots}

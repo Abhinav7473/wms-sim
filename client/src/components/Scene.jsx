@@ -2,6 +2,7 @@ import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
 import WarehouseFloor from './WarehouseFloor'
 import WarehouseStructure from './WarehouseStructure'
 import Robot from './Robot'
+import PathLine from './PathLine'
 
 export default function Scene({ robots }) {
   return (
@@ -22,12 +23,24 @@ export default function Scene({ robots }) {
       <WarehouseFloor />
       <WarehouseStructure />
       
+      {/* Robots */}
       {robots.map(robot => (
         <Robot 
           key={robot.id}
           position={robot.position}
           status={robot.status}
           id={robot.id}
+          current_task={robot.current_task}
+        />
+      ))}
+      
+      {/* Path lines for moving robots */}
+      {robots.filter(r => r.status === 'moving').map(robot => (
+        <PathLine 
+          key={`path-${robot.id}`}
+          start={robot.position}
+          end={[0, 0, 0]}
+          color="#ffaa00"
         />
       ))}
     </>
