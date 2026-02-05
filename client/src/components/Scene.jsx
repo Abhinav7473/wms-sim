@@ -1,7 +1,7 @@
 import { OrbitControls, PerspectiveCamera, Environment } from '@react-three/drei'
 import WarehouseStructure from './WarehouseStructure'
 import Robot from './Robot'
-import Floor from './Floor'
+import WarehouseFloor from './WarehouseFloor'
 
 export default function Scene({ robots }) {
   return (
@@ -13,21 +13,20 @@ export default function Scene({ robots }) {
         minDistance={10}
         maxDistance={80}
         maxPolarAngle={Math.PI / 2.2}
-        enableRotate={true}    // ✅ Enable rotation
-        enablePan={true}        // ✅ Enable panning
-        enableZoom={true}       // ✅ Enable zoom
-        rotateSpeed={0.5}       // Adjust rotation sensitivity
-        panSpeed={0.8}          // Adjust pan sensitivity
+        enableRotate={true}
+        enablePan={true}
+        enableZoom={true}
+        rotateSpeed={0.5}
+        panSpeed={0.8}
       />
 
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 20, 10]} intensity={1} castShadow />
       <Environment preset="warehouse" />
 
-      <Floor />
+      <WarehouseFloor />
       <WarehouseStructure />
 
-      {/* FORKLIFTS (Robots) */}
       {robots.map(robot => (
         <Robot 
           key={robot.id}

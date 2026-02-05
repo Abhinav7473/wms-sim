@@ -27,7 +27,7 @@ Thumbs.db
 *.sqlite
 
 # 3D Models (large binary files)
-public/models/
+client/public/models/
 *.gltf
 *.glb
 *.fbx
